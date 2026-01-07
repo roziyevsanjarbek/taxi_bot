@@ -24,6 +24,7 @@ readonly class TelegramHandler
     public function handleMessage($message)
     {
         $firstName = $message['from']['first_name'] ?? '';
+        $username = $message['from']['username'] ?? '';
         $chatId = $message['chat']['id'] ?? null;
         $text   = $message['text'] ?? '';
 
@@ -49,7 +50,7 @@ readonly class TelegramHandler
                     ->where('status','new')
                     ->update(['phone' => $text]);
 
-                $this->group->sendOrderToGroup($chatId);
+                $this->group->sendOrderToGroup($chatId, $username);
                 return;
             } else {
                 $this->telegram->sendMessage($chatId, "❌ Telefon raqam noto‘g‘ri\n\nMasalan: +998991234567");
@@ -85,6 +86,7 @@ readonly class TelegramHandler
         switch ($data) {
 
             case 'driver':
+                $this->telegram->sendAdminMessage($chatId, $callback['from']['username']);
                 $this->telegram->editMessage(
                     $chatId,
                     $messageId,

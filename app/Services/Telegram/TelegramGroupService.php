@@ -11,9 +11,10 @@ class TelegramGroupService
     public function __construct(
         private readonly TelegramService $telegram,
         private readonly StateService $state
+
     ){}
 
-    public function sendOrderToGroup($chatId)
+    public function sendOrderToGroup($chatId, $username)
     {
         $userId = DB::table('users')->where('chat_id', $chatId)->value('id');
 
@@ -43,13 +44,16 @@ class TelegramGroupService
             . "📍 Yo‘nalish: {$directionText}\n"
             . "🏙 Manzil: {$order->city}\n"
             . $detailsText . "\n"
-            . "📞 Tel: {$order->phone}";
+            . "📞 Tel: {$order->phone}" . "\n"
+            . "✈️ Telegram: @{$username}";
 
 
+        $token = config('services.telegram.bot_token');
+        $group_id = config('services.telegram.group_id');
         Http::post(
-            'https://api.telegram.org/bot'.env('TELEGRAM_BOT_TOKEN').'/sendMessage',
+            'https://api.telegram.org/bot'. $token .'/sendMessage',
             [
-                'chat_id' => env('TELEGRAM_GROUP_ID'),
+                'chat_id' => $group_id,
                 'text' => $text
             ]
         );
